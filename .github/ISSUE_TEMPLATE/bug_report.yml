@@ -1,0 +1,20 @@
+name: Bug Report
+description: File a bug report
+title: "bug: "
+labels:
+  - bug
+
+body:
+  - type: input
+    id: title
+    attributes:
+      label: Title
+      description: A clear and concise description of what the bug is.
+      placeholder: Enter the title of the issuek
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: A clear and concise description of what the bug is.
+      placeholder: Enter the description of the issue
