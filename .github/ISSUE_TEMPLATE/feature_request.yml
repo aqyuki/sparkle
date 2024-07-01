@@ -1,0 +1,24 @@
+name: Feature Request
+description: File a feature request
+title: "feature: "
+labels:
+  - feature
+
+body:
+  - type: input
+    attributes:
+      label: Title
+      description: A clear and concise title for the feature request
+      placeholder: Title
+
+  - type: textarea
+    attributes:
+      label: Description
+      description: A clear and concise description of what the problem is. Ex. I'm always frustrated when...
+      placeholder: Description
+
+  - type: textarea
+    attributes:
+      label: Notes
+      description: Any additional notes or context
+      placeholder: Notes
