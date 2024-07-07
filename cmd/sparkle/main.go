@@ -43,6 +43,7 @@ func run(ctx context.Context) exitCode {
 	do.Provide(injector, di.NewLoggerInjector(logger))
 	do.Provide(injector, di.NewSessionInjector(token))
 	do.Provide(injector, handler.NewReadyHandler)
+	do.Provide(injector, handler.NewMessageLinkExpandHandler)
 	do.Provide(injector, bot.NewBot)
 
 	// health check

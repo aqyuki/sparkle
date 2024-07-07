@@ -8,7 +8,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func TestNewReadyHandler(t *testing.T) {
+func TestNewMessageLinkExpandHandler(t *testing.T) {
 	type deps struct {
 		logger do.Provider[*zap.SugaredLogger]
 	}
@@ -39,7 +39,7 @@ func TestNewReadyHandler(t *testing.T) {
 			i := do.New()
 			do.Provide(i, tt.deps.logger)
 
-			actual, err := NewReadyHandler(i)
+			actual, err := NewMessageLinkExpandHandler(i)
 			assert.NoError(t, err)
 			assert.NotNil(t, actual)
 		})

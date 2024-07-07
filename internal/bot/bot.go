@@ -12,9 +12,10 @@ var _ do.Provider[*Bot] = NewBot
 var _ do.Healthcheckable = (*Bot)(nil)
 
 type Bot struct {
-	session *discordgo.Session
-	ready   handler.ReadyHandler
-	remover []func()
+	session   *discordgo.Session
+	ready     handler.ReadyHandler
+	msgExpand handler.MessageLinkExpandHandler
+	remover   []func()
 }
 
 // NewBot creates a new Bot instance.
@@ -35,16 +36,25 @@ func NewBot(i *do.Injector) (*Bot, error) {
 			Errorf("dependency resolution failed: %w", err)
 	}
 
+	msgExpand, err := do.Invoke[handler.MessageLinkExpandHandler](i)
+	if err != nil {
+		return nil, oops.
+			In("Bot").
+			Errorf("dependency resolution failed: %w", err)
+	}
+
 	return &Bot{
-		session: session,
-		ready:   ready,
-		remover: make([]func(), 0),
+		session:   session,
+		ready:     ready,
+		msgExpand: msgExpand,
+		remover:   make([]func(), 0),
 	}, nil
 }
 
 func (b *Bot) Start() error {
 	b.remover = append(b.remover,
 		b.session.AddHandler(b.ready.Ready),
+		b.session.AddHandler(b.msgExpand.Expand),
 	)
 	if err := b.session.Open(); err != nil {
 		return oops.
