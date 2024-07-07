@@ -11,3 +11,12 @@ Sparkleは，Goで実装されたBotで便利な機能から，ネタよりな�
 - チャンネルリンクを展開する．
 - VC Diff
 - Alias 機能
+
+## How to Run
+> [!NOTE]
+> Dockerでの実行のみサポートしています．
+
+1. このリポジトリをローカルにクローンする
+2. Discord Developer PortalでDiscord Botのトークンを作成してください．
+3. `.env.sample`を`.env`に改名し，`DISCORD_TOKEN`にDiscord Botのトークンを指定してください．
+4. `docker compose up -d`で起動できます．
