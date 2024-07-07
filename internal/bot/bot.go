@@ -54,6 +54,7 @@ func NewBot(i *do.Injector) (*Bot, error) {
 func (b *Bot) Start() error {
 	b.remover = append(b.remover,
 		b.session.AddHandler(b.ready.Ready),
+		b.session.AddHandler(b.msgExpand.Expand),
 	)
 	if err := b.session.Open(); err != nil {
 		return oops.
