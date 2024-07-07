@@ -1,0 +1,30 @@
+name: 新機能の追加
+description: 新機能を追加するときはこちら
+labels:
+  - ":sparkles: feature"
+body:
+  - type: textarea
+    id: background
+    attributes:
+      label: 背景
+      description: どのような課題を抱えてissueを立てたのか、経緯や前提を記載してください。
+    validations:
+      required: true
+  - type: textarea
+    id: merit
+    attributes:
+      label: 望まれる動作・仕様
+      description: 実装する場合，どのような動作をを期待するかを記載してください。
+    validations:
+      required: true
+  - type: textarea
+    id: do
+    attributes:
+      label: やること
+      description: このissueで取り組むことを記載してください。
+    validations:
+      required: true
+  - type: textarea
+    id: supplement
+    attributes:
+      label: 補足
