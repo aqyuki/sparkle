@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/aqyuki/sparkle/compare/v1.0.0...v1.0.1) (2024-07-07)
+
+
+### Bug Fixes
+
+* fix package name ([#16](https://github.com/aqyuki/sparkle/issues/16)) ([214d033](https://github.com/aqyuki/sparkle/commit/214d0331175ca492cf36b3b322df29d4bdaf4e5d))
+
 ## 1.0.0 (2024-07-07)
 
 
