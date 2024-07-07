@@ -20,7 +20,7 @@ jobs:
       - name: generate image tag
         id: generate-image-tag
         run: |
-          IMAGE_NAME=star
+          IMAGE_NAME=sparkle
           IMAGE_ID=ghcr.io/${{ github.repository }}/$IMAGE_NAME
 
           # Change all uppercase to lowercase
