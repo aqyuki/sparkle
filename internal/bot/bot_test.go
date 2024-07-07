@@ -13,8 +13,9 @@ func TestNewBot(t *testing.T) {
 	t.Parallel()
 
 	type deps struct {
-		session do.Provider[*discordgo.Session]
-		ready   do.Provider[handler.ReadyHandler]
+		session   do.Provider[*discordgo.Session]
+		ready     do.Provider[handler.ReadyHandler]
+		msgExpand do.Provider[handler.MessageLinkExpandHandler]
 	}
 
 	tests := []struct {
@@ -31,6 +32,11 @@ func TestNewBot(t *testing.T) {
 				ready: func(i *do.Injector) (handler.ReadyHandler, error) {
 					return &struct{ handler.ReadyHandler }{}, nil
 				},
+				msgExpand: func(i *do.Injector) (handler.MessageLinkExpandHandler, error) {
+					return &struct {
+						handler.MessageLinkExpandHandler
+					}{}, nil
+				},
 			},
 			wantErr: false,
 		},
@@ -43,6 +49,11 @@ func TestNewBot(t *testing.T) {
 				ready: func(i *do.Injector) (handler.ReadyHandler, error) {
 					return &struct{ handler.ReadyHandler }{}, nil
 				},
+				msgExpand: func(i *do.Injector) (handler.MessageLinkExpandHandler, error) {
+					return &struct {
+						handler.MessageLinkExpandHandler
+					}{}, nil
+				},
 			},
 			wantErr: true,
 		},
@@ -53,6 +64,26 @@ func TestNewBot(t *testing.T) {
 					return &discordgo.Session{}, nil
 				},
 				ready: func(i *do.Injector) (handler.ReadyHandler, error) {
+					return nil, assert.AnError
+				},
+				msgExpand: func(i *do.Injector) (handler.MessageLinkExpandHandler, error) {
+					return &struct {
+						handler.MessageLinkExpandHandler
+					}{}, nil
+				},
+			},
+			wantErr: true,
+		},
+		{
+			name: "failed to create a new bot because failed to resolve message_link_expand",
+			deps: &deps{
+				session: func(i *do.Injector) (*discordgo.Session, error) {
+					return &discordgo.Session{}, nil
+				},
+				ready: func(i *do.Injector) (handler.ReadyHandler, error) {
+					return &struct{ handler.ReadyHandler }{}, nil
+				},
+				msgExpand: func(i *do.Injector) (handler.MessageLinkExpandHandler, error) {
 					return nil, assert.AnError
 				},
 			},
@@ -67,6 +98,7 @@ func TestNewBot(t *testing.T) {
 			i := do.New()
 			do.Provide(i, tt.deps.session)
 			do.Provide(i, tt.deps.ready)
+			do.Provide(i, tt.deps.msgExpand)
 
 			got, err := NewBot(i)
 			if tt.wantErr {
