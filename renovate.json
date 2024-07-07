@@ -9,5 +9,6 @@
     }
   ],
   "platformCommit": true,
+  "labels": [":arrow_up: dependency", ":robot: renovate"],
   "configMigration": true
 }
