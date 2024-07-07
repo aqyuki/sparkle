@@ -2,6 +2,7 @@ package handler
 
 import (
 	"errors"
+	"fmt"
 	"regexp"
 	"strings"
 	"time"
@@ -88,6 +89,19 @@ func (h *messageLinkExpandHandler) Expand(session *discordgo.Session, message *d
 		}
 	}
 
+	// メッセージにリアクションが有る場合は，Embedのフィールドに追加する．
+	var field *discordgo.MessageEmbedField
+	if len(msg.Reactions) > 0 {
+		field = &discordgo.MessageEmbedField{
+			Name:   "Reactions",
+			Value:  "",
+			Inline: true,
+		}
+		for _, reaction := range msg.Reactions {
+			field.Value = fmt.Sprintf("%s%s ", field.Value, reaction.Emoji.Name)
+		}
+	}
+
 	embed := &discordgo.MessageEmbed{
 		Image: image,
 		Author: &discordgo.MessageEmbedAuthor{
@@ -96,6 +110,7 @@ func (h *messageLinkExpandHandler) Expand(session *discordgo.Session, message *d
 		},
 		Color:       0x7fffff,
 		Description: msg.Content,
+		Fields:      fieldOrNil(field),
 		Timestamp:   msg.Timestamp.Format(time.RFC3339),
 		Footer: &discordgo.MessageEmbedFooter{
 			Text: channel.Name,
@@ -138,4 +153,11 @@ type message struct {
 	guild   string
 	channel string
 	message string
+}
+
+func fieldOrNil(field *discordgo.MessageEmbedField) []*discordgo.MessageEmbedField {
+	if field == nil {
+		return nil
+	}
+	return []*discordgo.MessageEmbedField{field}
 }
