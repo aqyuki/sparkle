@@ -7,7 +7,7 @@ require (
 	github.com/google/go-cmp v0.6.0
 	github.com/samber/do v1.6.0
 	github.com/samber/oops v1.12.0
-	github.com/stretchr/testify v1.8.1
+	github.com/stretchr/testify v1.9.0
 	go.uber.org/zap v1.27.0
 )
 
