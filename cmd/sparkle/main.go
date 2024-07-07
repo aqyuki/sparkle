@@ -4,6 +4,7 @@ import (
 	"context"
 	"os"
 	"os/signal"
+	"syscall"
 
 	"github.com/aqyuki/sparkle/internal/bot"
 	"github.com/aqyuki/sparkle/internal/bot/handler"
@@ -68,7 +69,7 @@ func run(ctx context.Context) exitCode {
 
 	// wait for shutdown signal
 	logger.Info("waiting for shutdown signal")
-	ctx, done := signal.NotifyContext(ctx, os.Interrupt)
+	ctx, done := signal.NotifyContext(ctx, os.Interrupt, syscall.SIGTERM)
 	defer done()
 	<-ctx.Done()
 	logger.Info("received shutdown signal")
