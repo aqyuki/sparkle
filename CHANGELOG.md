@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/aqyuki/sparkle/compare/v1.0.1...v1.1.0) (2024-07-07)
+
+
+### Features
+
+* メッセージ展開時に，リアクションの絵文字をEmbedのフィールドに追加 ([#20](https://github.com/aqyuki/sparkle/issues/20)) ([a73e225](https://github.com/aqyuki/sparkle/commit/a73e22514b3d1b4aff1bf1015834648e2bf06403))
+
 ## [1.0.1](https://github.com/aqyuki/sparkle/compare/v1.0.0...v1.0.1) (2024-07-07)
 
 
