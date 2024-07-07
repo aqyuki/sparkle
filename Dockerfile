@@ -12,4 +12,5 @@ FROM gcr.io/distroless/cc-debian12 AS runner
 
 WORKDIR /app
 COPY --from=builder --chown=root:root /app/sparkle /app/sparkle
+STOPSIGNAL SIGINT
 ENTRYPOINT ["./sparkle"]
