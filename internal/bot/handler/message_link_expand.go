@@ -98,7 +98,18 @@ func (h *messageLinkExpandHandler) Expand(session *discordgo.Session, message *d
 			Inline: true,
 		}
 		for _, reaction := range msg.Reactions {
-			field.Value = fmt.Sprintf("%s%s ", field.Value, reaction.Emoji.Name)
+			var emoji string
+			if reaction.Emoji.ID != "" {
+				raw, err := session.GuildEmoji(channel.GuildID, reaction.Emoji.ID)
+				if err != nil {
+					h.logger.Errorf("failed to get emoji: %v", err)
+					continue
+				}
+				emoji = raw.MessageFormat()
+			} else {
+				emoji = reaction.Emoji.Name
+			}
+			field.Value = fmt.Sprintf("%s%s ", field.Value, emoji)
 		}
 	}
 
