@@ -17,4 +17,4 @@ jobs:
         with:
           token: ${{ steps.generate-token.outputs.token }}
           release-type: go
-          package-name: aqyuki-sparkle
+          package-name: sparkle
