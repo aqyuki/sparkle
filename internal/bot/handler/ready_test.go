@@ -15,7 +15,6 @@ func TestNewReadyHandler(t *testing.T) {
 	tests := []struct {
 		name string
 		deps deps
-		want ReadyHandler
 	}{
 		{
 			name: "success to create a new ready handler",
