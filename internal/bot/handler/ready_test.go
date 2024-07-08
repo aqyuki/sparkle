@@ -3,6 +3,7 @@ package handler
 import (
 	"testing"
 
+	"github.com/aqyuki/sparkle/internal/info"
 	"github.com/samber/do"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap"
@@ -10,7 +11,8 @@ import (
 
 func TestNewReadyHandler(t *testing.T) {
 	type deps struct {
-		logger do.Provider[*zap.SugaredLogger]
+		logger  do.Provider[*zap.SugaredLogger]
+		version do.Provider[info.VersionResolver]
 	}
 	tests := []struct {
 		name string
@@ -22,6 +24,9 @@ func TestNewReadyHandler(t *testing.T) {
 				logger: func(i *do.Injector) (*zap.SugaredLogger, error) {
 					return zap.NewExample().Sugar(), nil
 				},
+				version: func(i *do.Injector) (info.VersionResolver, error) {
+					return info.New(i)
+				},
 			},
 		},
 		{
@@ -29,6 +34,9 @@ func TestNewReadyHandler(t *testing.T) {
 			deps: deps{
 				logger: func(i *do.Injector) (*zap.SugaredLogger, error) {
 					return nil, assert.AnError
+				},
+				version: func(i *do.Injector) (info.VersionResolver, error) {
+					return info.New(i)
 				},
 			},
 		},
@@ -38,6 +46,7 @@ func TestNewReadyHandler(t *testing.T) {
 			// init DI container
 			i := do.New()
 			do.Provide(i, tt.deps.logger)
+			do.Provide(i, tt.deps.version)
 
 			actual, err := NewReadyHandler(i)
 			assert.NoError(t, err)
