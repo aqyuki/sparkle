@@ -3,6 +3,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        - BOT_VERSION="develop_build"
     env_file:
       - .env
     restart: always

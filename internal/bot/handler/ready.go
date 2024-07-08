@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"github.com/aqyuki/sparkle/internal/info"
 	"github.com/aqyuki/sparkle/pkg/logging"
 	"github.com/bwmarrin/discordgo"
 	"github.com/samber/do"
@@ -15,7 +16,8 @@ type ReadyHandler interface {
 }
 
 type readyHandler struct {
-	logger *zap.SugaredLogger
+	logger          *zap.SugaredLogger
+	versionResolver info.VersionResolver
 }
 
 func NewReadyHandler(i *do.Injector) (ReadyHandler, error) {
@@ -25,7 +27,8 @@ func NewReadyHandler(i *do.Injector) (ReadyHandler, error) {
 		logger.Warn("dependency resolution failed for *zap.SugaredLogger and recovered with the default logger")
 	}
 	return &readyHandler{
-		logger: logger,
+		logger:          logger,
+		versionResolver: do.MustInvoke[info.VersionResolver](i),
 	}, nil
 }
 
@@ -34,6 +37,7 @@ func (h *readyHandler) Ready(session *discordgo.Session, event *discordgo.Ready)
 		h.logger.Errorf("failed to update custom status: %v", err)
 	}
 	h.logger.Infof("bot is ready as %s#%s", event.User.Username, event.User.Discriminator)
+	h.logger.Infof("version: %s", h.versionResolver.Version())
 	if err := session.UpdateCustomStatus("waiting any action"); err != nil {
 		h.logger.Errorf("failed to update custom status: %v", err)
 	}
