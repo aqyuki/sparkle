@@ -9,6 +9,7 @@ import (
 	"github.com/aqyuki/sparkle/internal/bot"
 	"github.com/aqyuki/sparkle/internal/bot/handler"
 	"github.com/aqyuki/sparkle/internal/di"
+	"github.com/aqyuki/sparkle/internal/info"
 	"github.com/aqyuki/sparkle/pkg/env"
 	"github.com/aqyuki/sparkle/pkg/logging"
 	"github.com/samber/do"
@@ -43,6 +44,7 @@ func run(ctx context.Context) exitCode {
 	injector := do.New()
 	do.Provide(injector, di.NewLoggerInjector(logger))
 	do.Provide(injector, di.NewSessionInjector(token))
+	do.Provide(injector, info.New)
 	do.Provide(injector, handler.NewReadyHandler)
 	do.Provide(injector, handler.NewMessageLinkExpandHandler)
 	do.Provide(injector, bot.NewBot)
