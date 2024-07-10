@@ -6,7 +6,7 @@ WORKDIR /app
 COPY . .
 RUN go mod download
 RUN go mod verify
-RUN go build -ldflags="-s -w -X 'github.com/aqyuki/sparkle/internal/info.Version=${BOT_VERSION}'" -trimpath -o sparkle cmd/sparkle/main.go
+RUN go build -ldflags="-s -w -X 'github.com/aqyuki/sparkle/internal/information.Version=${BOT_VERSION}'" -trimpath -o sparkle cmd/sparkle/main.go
 
 #==================== Runner ====================
 FROM gcr.io/distroless/cc-debian12 AS runner
