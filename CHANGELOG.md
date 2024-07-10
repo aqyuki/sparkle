@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.3.0](https://github.com/aqyuki/sparkle/compare/v1.2.0...v1.3.0) (2024-07-10)
+
+
+### Features
+
+* ステータスメッセージに現在のバージョンを表示するように変更 ([#44](https://github.com/aqyuki/sparkle/issues/44)) ([aca6641](https://github.com/aqyuki/sparkle/commit/aca664165b33e1fc923d41dad94874fae1d362f7))
+
+
+### Bug Fixes
+
+* バージョンを埋め込られて居なかった問題を修正 ([#42](https://github.com/aqyuki/sparkle/issues/42)) ([fb7a37c](https://github.com/aqyuki/sparkle/commit/fb7a37c2ba0f8c37d341b87b71aa961cb3784a61))
+
 ## [1.2.0](https://github.com/aqyuki/sparkle/compare/v1.1.0...v1.2.0) (2024-07-10)
 
 
