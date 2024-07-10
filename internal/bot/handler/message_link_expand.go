@@ -7,41 +7,29 @@ import (
 	"strings"
 	"time"
 
+	"github.com/aqyuki/sparkle/internal/bot"
 	"github.com/aqyuki/sparkle/pkg/cache"
-	"github.com/aqyuki/sparkle/pkg/logging"
 	"github.com/bwmarrin/discordgo"
-	"github.com/samber/do"
 	"go.uber.org/zap"
 )
 
-var _ MessageLinkExpandHandler = (*messageLinkExpandHandler)(nil)
-var _ do.Provider[MessageLinkExpandHandler] = NewMessageLinkExpandHandler
+var _ bot.MessageCreateHandler = (*MessageLinkExpandHandler)(nil)
 
-type MessageLinkExpandHandler interface {
-	Expand(session *discordgo.Session, message *discordgo.MessageCreate)
-}
-
-type messageLinkExpandHandler struct {
+type MessageLinkExpandHandler struct {
 	logger *zap.SugaredLogger
 	rgx    *regexp.Regexp
 	cache  cache.CacheStore
 }
 
-func NewMessageLinkExpandHandler(i *do.Injector) (MessageLinkExpandHandler, error) {
-	logger, err := do.Invoke[*zap.SugaredLogger](i)
-	if err != nil {
-		logger = logging.DefaultLogger()
-		logger.Warn("dependency resolution failed for *zap.SugaredLogger and recovered with the default logger")
-	}
-
-	return &messageLinkExpandHandler{
+func NewMessageLinkExpandHandler(logger *zap.SugaredLogger, cache cache.CacheStore) *MessageLinkExpandHandler {
+	return &MessageLinkExpandHandler{
 		logger: logger,
 		rgx:    regexp.MustCompile(`https://(?:ptb\.|canary\.)?discord(app)?\.com/channels/(\d+)/(\d+)/(\d+)`),
-		cache:  do.MustInvoke[cache.CacheStore](i),
-	}, nil
+		cache:  cache,
+	}
 }
 
-func (h *messageLinkExpandHandler) Expand(session *discordgo.Session, message *discordgo.MessageCreate) {
+func (h *MessageLinkExpandHandler) Handle(session *discordgo.Session, message *discordgo.MessageCreate) {
 	if message.Author.Bot {
 		h.logger.Info("skip bot message")
 		return
@@ -156,12 +144,12 @@ func (h *messageLinkExpandHandler) Expand(session *discordgo.Session, message *d
 	h.logger.Info("message link expanded")
 }
 
-func (h *messageLinkExpandHandler) extractLink(content string) []string {
+func (h *MessageLinkExpandHandler) extractLink(content string) []string {
 	return h.rgx.FindAllString(content, -1)
 }
 
 // extractMessageInfo extracts the channel ID and message ID from the message link.
-func (h *messageLinkExpandHandler) extractMessageInfo(link string) (info message, err error) {
+func (h *MessageLinkExpandHandler) extractMessageInfo(link string) (info message, err error) {
 	segments := strings.Split(link, "/")
 	if len(segments) < 4 {
 		return message{}, errors.New("invalid message link")

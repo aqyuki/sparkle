@@ -1,38 +1,27 @@
 package handler
 
 import (
-	"github.com/aqyuki/sparkle/internal/info"
-	"github.com/aqyuki/sparkle/pkg/logging"
+	"github.com/aqyuki/sparkle/internal/bot"
+	"github.com/aqyuki/sparkle/internal/information"
 	"github.com/bwmarrin/discordgo"
-	"github.com/samber/do"
 	"go.uber.org/zap"
 )
 
-var _ ReadyHandler = (*readyHandler)(nil)
-var _ do.Provider[ReadyHandler] = NewReadyHandler
+var _ bot.ReadyHandler = (*ReadyHandler)(nil)
 
-type ReadyHandler interface {
-	Ready(session *discordgo.Session, event *discordgo.Ready)
-}
-
-type readyHandler struct {
+type ReadyHandler struct {
 	logger          *zap.SugaredLogger
-	versionResolver info.VersionResolver
+	versionResolver information.InformationProvider
 }
 
-func NewReadyHandler(i *do.Injector) (ReadyHandler, error) {
-	logger, err := do.Invoke[*zap.SugaredLogger](i)
-	if err != nil {
-		logger = logging.DefaultLogger()
-		logger.Warn("dependency resolution failed for *zap.SugaredLogger and recovered with the default logger")
-	}
-	return &readyHandler{
+func NewReadyHandler(logger *zap.SugaredLogger, resolver information.InformationProvider) *ReadyHandler {
+	return &ReadyHandler{
 		logger:          logger,
-		versionResolver: do.MustInvoke[info.VersionResolver](i),
-	}, nil
+		versionResolver: resolver,
+	}
 }
 
-func (h *readyHandler) Ready(session *discordgo.Session, event *discordgo.Ready) {
+func (h *ReadyHandler) Handle(session *discordgo.Session, event *discordgo.Ready) {
 	if err := session.UpdateCustomStatus("waking up"); err != nil {
 		h.logger.Errorf("failed to update custom status: %v", err)
 	}
