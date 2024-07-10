@@ -3,6 +3,7 @@ package handler
 import (
 	"testing"
 
+	"github.com/aqyuki/sparkle/pkg/cache"
 	"github.com/samber/do"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap"
@@ -11,6 +12,7 @@ import (
 func TestNewMessageLinkExpandHandler(t *testing.T) {
 	type deps struct {
 		logger do.Provider[*zap.SugaredLogger]
+		cache  do.Provider[cache.CacheStore]
 	}
 	tests := []struct {
 		name string
@@ -22,6 +24,9 @@ func TestNewMessageLinkExpandHandler(t *testing.T) {
 				logger: func(i *do.Injector) (*zap.SugaredLogger, error) {
 					return zap.NewExample().Sugar(), nil
 				},
+				cache: func(i *do.Injector) (cache.CacheStore, error) {
+					return &struct{ cache.CacheStore }{}, nil
+				},
 			},
 		},
 		{
@@ -29,6 +34,9 @@ func TestNewMessageLinkExpandHandler(t *testing.T) {
 			deps: deps{
 				logger: func(i *do.Injector) (*zap.SugaredLogger, error) {
 					return nil, assert.AnError
+				},
+				cache: func(i *do.Injector) (cache.CacheStore, error) {
+					return &struct{ cache.CacheStore }{}, nil
 				},
 			},
 		},
@@ -38,6 +46,7 @@ func TestNewMessageLinkExpandHandler(t *testing.T) {
 			// init DI container
 			i := do.New()
 			do.Provide(i, tt.deps.logger)
+			do.Provide(i, tt.deps.cache)
 
 			actual, err := NewMessageLinkExpandHandler(i)
 			assert.NoError(t, err)
