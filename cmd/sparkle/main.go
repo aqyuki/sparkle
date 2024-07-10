@@ -9,12 +9,10 @@ import (
 
 	"github.com/aqyuki/sparkle/internal/bot"
 	"github.com/aqyuki/sparkle/internal/bot/handler"
-	"github.com/aqyuki/sparkle/internal/di"
-	"github.com/aqyuki/sparkle/internal/info"
+	"github.com/aqyuki/sparkle/internal/information"
 	"github.com/aqyuki/sparkle/pkg/cache"
 	"github.com/aqyuki/sparkle/pkg/env"
 	"github.com/aqyuki/sparkle/pkg/logging"
-	"github.com/samber/do"
 )
 
 type exitCode int
@@ -42,32 +40,30 @@ func run(ctx context.Context) exitCode {
 	}
 	logger.Info("loaded configuration")
 
-	// init ID container
-	injector := do.New()
-	do.Provide(injector, di.NewLoggerInjector(logger))
-	do.Provide(injector, di.NewSessionInjector(token))
-	do.Provide(injector, cache.NewCacheStore(5*time.Minute, 10*time.Minute))
-	do.Provide(injector, info.New)
-	do.Provide(injector, handler.NewReadyHandler)
-	do.Provide(injector, handler.NewMessageLinkExpandHandler)
-	do.Provide(injector, bot.NewBot)
+	// initialize handlers
 
-	// health check
-	if err := do.HealthCheck[*bot.Bot](injector); err != nil {
-		logger.Error(err.Error(), "error", err)
-		return ExitCodeError
-	}
+	// Ready handler
+	infoProvider := information.NewBotInformationProvider()
+	readyHandler := handler.NewReadyHandler(logger, infoProvider)
 
-	// get b
+	// MessageCreate handler
+	cache := cache.NewImMemoryCacheStore(5*time.Minute, 10*time.Minute)
+	msgLinkExpandHandler := handler.NewMessageLinkExpandHandler(logger, cache)
+
+	// initialize bot
 	logger.Info("initializing bot")
-	b, err := do.Invoke[*bot.Bot](injector)
+	bot, err := bot.NewBot(token)
 	if err != nil {
 		logger.Error(err.Error(), "error", err)
 		return ExitCodeError
 	}
 
+	// register handlers
+	bot.AddReadyHandler(readyHandler)
+	bot.AddMessageCreateHandler(msgLinkExpandHandler)
+
 	logger.Info("starting bot")
-	if err := b.Start(); err != nil {
+	if err := bot.Start(); err != nil {
 		logger.Error(err.Error(), "error", err)
 		return ExitCodeError
 	}
@@ -81,11 +77,10 @@ func run(ctx context.Context) exitCode {
 
 	// shutdown
 	logger.Info("shutting down")
-	if err := do.Shutdown[*bot.Bot](injector); err != nil {
+	if err := bot.Shutdown(); err != nil {
 		logger.Error(err.Error(), "error", err)
 		return ExitCodeError
 	}
-
 	logger.Info("shutdown complete. goodbye!")
 	return ExitCodeOK
 }
