@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/aqyuki/sparkle/pkg/cache"
 	"github.com/aqyuki/sparkle/pkg/logging"
 	"github.com/bwmarrin/discordgo"
 	"github.com/samber/do"
@@ -23,6 +24,7 @@ type MessageLinkExpandHandler interface {
 type messageLinkExpandHandler struct {
 	logger *zap.SugaredLogger
 	rgx    *regexp.Regexp
+	cache  cache.CacheStore
 }
 
 func NewMessageLinkExpandHandler(i *do.Injector) (MessageLinkExpandHandler, error) {
@@ -35,6 +37,7 @@ func NewMessageLinkExpandHandler(i *do.Injector) (MessageLinkExpandHandler, erro
 	return &messageLinkExpandHandler{
 		logger: logger,
 		rgx:    regexp.MustCompile(`https://(?:ptb\.|canary\.)?discord(app)?\.com/channels/(\d+)/(\d+)/(\d+)`),
+		cache:  do.MustInvoke[cache.CacheStore](i),
 	}, nil
 }
 
@@ -65,11 +68,22 @@ func (h *messageLinkExpandHandler) Expand(session *discordgo.Session, message *d
 	}
 
 	// 対象のメッセージが投稿されたチャンネルがNSFWの場合は展開しない
-	channel, err := session.Channel(info.channel)
-	if err != nil {
-		h.logger.Errorf("failed to get channel: %v", err)
-		return
+
+	// Cacheを検索する
+	var channel *discordgo.Channel
+	if v, ok := h.cache.Get(info.channel); ok {
+		channel = v.(*discordgo.Channel)
+	} else {
+		// Cacheに存在しない場合，APIから取得する
+		ch, err := session.Channel(info.channel)
+		if err != nil {
+			h.logger.Errorf("failed to get channel: %v", err)
+			return
+		}
+		channel = ch
+		h.cache.Set(info.channel, channel)
 	}
+
 	if channel.NSFW {
 		h.logger.Info("skip NSFW channel")
 		return
