@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.2.0](https://github.com/aqyuki/sparkle/compare/v1.1.0...v1.2.0) (2024-07-10)
+
+
+### Features
+
+* Botにバージョンを埋め込むように変更 ([#32](https://github.com/aqyuki/sparkle/issues/32)) ([7306447](https://github.com/aqyuki/sparkle/commit/730644791b46afcd1f66eee94373953de308add1))
+* SIGTERMを検出できるように更新 ([#24](https://github.com/aqyuki/sparkle/issues/24)) ([20814f4](https://github.com/aqyuki/sparkle/commit/20814f4ebdd42c8a5e4e202dbbdb861da6475974))
+* キャッシュを使用するように変更 ([#35](https://github.com/aqyuki/sparkle/issues/35)) ([f277eea](https://github.com/aqyuki/sparkle/commit/f277eea89a34dcaac36626108217603526aa54c4))
+
+
+### Bug Fixes
+
+* **deps:** update module github.com/samber/oops to v1.12.1 ([#33](https://github.com/aqyuki/sparkle/issues/33)) ([9cafd6e](https://github.com/aqyuki/sparkle/commit/9cafd6e8674e60c9d52d74504d8e011773b77ea0))
+* fix typo ([#38](https://github.com/aqyuki/sparkle/issues/38)) ([727f283](https://github.com/aqyuki/sparkle/commit/727f2838358750c89a27980c4d6e8d95568d9a36))
+
 ## [1.1.0](https://github.com/aqyuki/sparkle/compare/v1.0.1...v1.1.0) (2024-07-07)
 
 
