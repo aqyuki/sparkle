@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"fmt"
+
 	"github.com/aqyuki/sparkle/internal/bot"
 	"github.com/aqyuki/sparkle/internal/information"
 	"github.com/bwmarrin/discordgo"
@@ -27,7 +29,7 @@ func (h *ReadyHandler) Handle(session *discordgo.Session, event *discordgo.Ready
 	}
 	h.logger.Infof("bot is ready as %s#%s", event.User.Username, event.User.Discriminator)
 	h.logger.Infof("version: %s", h.versionResolver.Version())
-	if err := session.UpdateCustomStatus("waiting any action"); err != nil {
+	if err := session.UpdateCustomStatus(fmt.Sprintf("version : %s", h.versionResolver.Version())); err != nil {
 		h.logger.Errorf("failed to update custom status: %v", err)
 	}
 }
