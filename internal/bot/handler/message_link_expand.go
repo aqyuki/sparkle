@@ -68,7 +68,6 @@ func (h *messageLinkExpandHandler) Expand(session *discordgo.Session, message *d
 	}
 
 	// 対象のメッセージが投稿されたチャンネルがNSFWの場合は展開しない
-
 	// Cacheを検索する
 	var channel *discordgo.Channel
 	if v, ok := h.cache.Get(info.channel); ok {
