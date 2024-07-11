@@ -52,11 +52,11 @@ func run(ctx context.Context) exitCode {
 	msgLinkExpandHandler := handler.NewMessageLinkExpandHandler(logger, cache)
 
 	// Message Command Runner
-	runner := bot.NewMessageCommandRunner()
+	mentionRouter := command.NewMentionCommandRouter()
 
 	// register commands
 	versionCmd := command.NewVersionCommand(logger, infoProvider)
-	runner.RegisterCommand(versionCmd)
+	mentionRouter.Register(versionCmd)
 
 	// initialize bot
 	logger.Info("initializing bot")
@@ -69,7 +69,7 @@ func run(ctx context.Context) exitCode {
 	// register handlers
 	bot.AddReadyHandler(readyHandler)
 	bot.AddMessageCreateHandler(msgLinkExpandHandler)
-	bot.AddMessageCreateHandler(runner)
+	bot.AddMessageCreateHandler(mentionRouter)
 
 	logger.Info("starting bot")
 	if err := bot.Start(); err != nil {
