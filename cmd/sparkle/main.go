@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/aqyuki/sparkle/internal/bot"
+	"github.com/aqyuki/sparkle/internal/bot/command"
 	"github.com/aqyuki/sparkle/internal/bot/handler"
 	"github.com/aqyuki/sparkle/internal/information"
 	"github.com/aqyuki/sparkle/pkg/cache"
@@ -50,6 +51,13 @@ func run(ctx context.Context) exitCode {
 	cache := cache.NewImMemoryCacheStore(5*time.Minute, 10*time.Minute)
 	msgLinkExpandHandler := handler.NewMessageLinkExpandHandler(logger, cache)
 
+	// Message Command Runner
+	runner := bot.NewMessageCommandRunner()
+
+	// register commands
+	versionCmd := command.NewVersionCommand(logger, infoProvider)
+	runner.RegisterCommand(versionCmd)
+
 	// initialize bot
 	logger.Info("initializing bot")
 	bot, err := bot.NewBot(token)
@@ -61,6 +69,7 @@ func run(ctx context.Context) exitCode {
 	// register handlers
 	bot.AddReadyHandler(readyHandler)
 	bot.AddMessageCreateHandler(msgLinkExpandHandler)
+	bot.AddMessageCreateHandler(runner)
 
 	logger.Info("starting bot")
 	if err := bot.Start(); err != nil {
