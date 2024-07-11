@@ -55,8 +55,15 @@ func run(ctx context.Context) exitCode {
 	mentionRouter := command.NewMentionCommandRouter()
 
 	// register commands
-	versionCmd := command.NewVersionCommand(logger, infoProvider)
-	mentionRouter.Register(versionCmd)
+	cmds := []command.Command{
+		command.NewVersionCommand(logger, infoProvider),
+	}
+	for _, cmd := range cmds {
+		if err := mentionRouter.Register(cmd); err != nil {
+			logger.Error("failed to register command", "error", err)
+			return ExitCodeError
+		}
+	}
 
 	// initialize bot
 	logger.Info("initializing bot")
