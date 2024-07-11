@@ -5,6 +5,7 @@ import (
 
 	"github.com/aqyuki/sparkle/internal/bot"
 	"github.com/bwmarrin/discordgo"
+	"github.com/samber/oops"
 )
 
 type CommandRouter interface{ bot.MessageCreateHandler }
@@ -24,8 +25,12 @@ func NewMentionCommandRouter() *MentionCommandRouter {
 	}
 }
 
-func (r *MentionCommandRouter) Register(cmd Command) {
+func (r *MentionCommandRouter) Register(cmd Command) error {
+	if _, ok := r.commands[strings.ToLower(cmd.Name())]; ok {
+		return oops.Errorf("command %s is already registered", cmd.Name())
+	}
 	r.commands[strings.ToLower(cmd.Name())] = cmd
+	return nil
 }
 
 func (r *MentionCommandRouter) Handle(session *discordgo.Session, message *discordgo.MessageCreate) {
