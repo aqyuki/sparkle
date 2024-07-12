@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.0.0](https://github.com/aqyuki/sparkle/compare/v1.3.0...v2.0.0) (2024-07-12)
+
+
+### ⚠ BREAKING CHANGES
+
+* Botの基幹コードを書き換えた ([#52](https://github.com/aqyuki/sparkle/issues/52))
+
+### Features
+
+* Botの基幹コードを書き換えた ([#52](https://github.com/aqyuki/sparkle/issues/52)) ([c2a09fc](https://github.com/aqyuki/sparkle/commit/c2a09fcaf260e0e4bbba63315e04078c0899f8dd))
+* バージョンを確認するコマンドを追加 ([#47](https://github.com/aqyuki/sparkle/issues/47)) ([e78b0a7](https://github.com/aqyuki/sparkle/commit/e78b0a730f14b2b5706e0356f67417d30839a58d))
+* メッセージコマンドを実装するための共通基盤を実装 ([#45](https://github.com/aqyuki/sparkle/issues/45)) ([1f22945](https://github.com/aqyuki/sparkle/commit/1f22945a0110a525a94758015dada4dbb2f3a533))
+
 ## [1.3.0](https://github.com/aqyuki/sparkle/compare/v1.2.0...v1.3.0) (2024-07-10)
 
 
