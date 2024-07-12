@@ -29,7 +29,6 @@ func New(token string) (*Core, error) {
 
 // Open opens a new session with the given token.
 func (c *Core) Open(token string) error {
-
 	if err := c.session.Open(); err != nil {
 		return oops.
 			In("Core").
