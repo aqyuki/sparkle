@@ -3,17 +3,11 @@ package main
 import (
 	"context"
 	"os"
-	"os/signal"
-	"syscall"
-	"time"
 
 	"github.com/aqyuki/sparkle/internal/bot"
-	"github.com/aqyuki/sparkle/internal/bot/command"
-	"github.com/aqyuki/sparkle/internal/bot/handler"
-	"github.com/aqyuki/sparkle/internal/information"
-	"github.com/aqyuki/sparkle/pkg/cache"
 	"github.com/aqyuki/sparkle/pkg/env"
 	"github.com/aqyuki/sparkle/pkg/logging"
+	"go.uber.org/zap"
 )
 
 type exitCode int
@@ -33,83 +27,36 @@ func run(ctx context.Context) exitCode {
 	logger := logging.FromContext(ctx)
 	defer logger.Sync()
 
-	logger.Info("loading configuration")
+	// initialize configuration
+	logger.Info("configuration is loading")
 	token, err := env.GetOrErr("DISCORD_TOKEN")
 	if err != nil {
 		logger.Error("failed to load configuration", "error", err)
 		return ExitCodeError
 	}
-	logger.Info("loaded configuration")
+	logger.Info("configuration was loaded successfully")
 
-	// initialize handlers
-
-	// Ready handler
-	infoProvider := information.NewBotInformationProvider()
-	readyHandler := handler.NewReadyHandler(logger, infoProvider)
-
-	// MessageCreate handler
-	cache := cache.NewImMemoryCacheStore(5*time.Minute, 10*time.Minute)
-	msgLinkExpandHandler := handler.NewMessageLinkExpandHandler(logger, cache)
-
-	// Message Command Runner
-	mentionRouter := command.NewMentionCommandRouter()
-	messageRouter := command.NewMessageRouter("s!")
-
-	// register commands
-	mentionCommands := []command.Command{
-		command.NewVersionCommand(logger, infoProvider),
-	}
-	for _, cmd := range mentionCommands {
-		if err := mentionRouter.Register(cmd); err != nil {
-			logger.Error("failed to register command", "error", err)
-			return ExitCodeError
-		}
-	}
-
-	messageCommands := []command.Command{
-		command.NewVersionCommand(logger, infoProvider),
-	}
-	for _, cmd := range messageCommands {
-		if err := messageRouter.Register(cmd); err != nil {
-			logger.Error("failed to register command", "error", err)
-			return ExitCodeError
-		}
-	}
-
-	// initialize bot
-	logger.Info("initializing bot")
-	bot, err := bot.NewBot(token)
+	logger.Infof("bot initialization is starting")
+	b, err := bot.New(token,
+		&bot.Deps{
+			Logger: logger,
+		})
 	if err != nil {
-		logger.Error(err.Error(), "error", err)
+		logger.Error("failed to initialize bot", "error", err)
 		return ExitCodeError
 	}
 
-	// register handlers
-	bot.AddReadyHandler(readyHandler)
-	bot.AddMessageCreateHandler(msgLinkExpandHandler)
-	bot.AddMessageCreateHandler(mentionRouter)
-	bot.AddMessageCreateHandler(messageRouter)
-
-	logger.Info("starting bot")
-	if err := bot.Start(); err != nil {
-		logger.Error(err.Error(), "error", err)
+	if err := b.Run(token); err != nil {
+		logger.Error("failed to run bot", "error", err)
 		return ExitCodeError
 	}
 
-	// wait for shutdown signal
-	logger.Info("waiting for shutdown signal")
-	ctx, done := signal.NotifyContext(ctx, os.Interrupt, syscall.SIGTERM)
-	defer done()
 	<-ctx.Done()
-	logger.Info("received shutdown signal")
-
-	// shutdown
-	logger.Info("shutting down")
-	if err := bot.Shutdown(); err != nil {
-		logger.Error(err.Error(), "error", err)
+	logger.Infof("shutdown signal was received", zap.String("reason", ctx.Err().Error()))
+	if err := b.Shutdown(); err != nil {
+		logger.Error("failed to shutdown bot", "error", err)
 		return ExitCodeError
 	}
-	logger.Info("shutdown complete. goodbye!")
 	return ExitCodeOK
 }
 
