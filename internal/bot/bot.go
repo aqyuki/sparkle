@@ -19,7 +19,7 @@ type Bot struct {
 	info   *information.BotInformation
 }
 
-func New(token string, deps *Deps) (*Bot, error) {
+func New(token string, logger *zap.SugaredLogger) (*Bot, error) {
 	c, err := core.New(token)
 	if err != nil {
 		return nil, err
@@ -27,7 +27,7 @@ func New(token string, deps *Deps) (*Bot, error) {
 
 	b := &Bot{
 		core:   c,
-		logger: deps.Logger,
+		logger: logger,
 		info:   information.NewBotInformation(),
 	}
 
@@ -54,8 +54,4 @@ func (b *Bot) Run(token string) error {
 func (b *Bot) Shutdown() error {
 	b.logger.Infof("bot is shutting down...")
 	return b.core.Close()
-}
-
-type Deps struct {
-	Logger *zap.SugaredLogger
 }

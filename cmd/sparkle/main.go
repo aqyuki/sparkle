@@ -37,10 +37,7 @@ func run(ctx context.Context) exitCode {
 	logger.Info("configuration was loaded successfully")
 
 	logger.Infof("bot initialization is starting")
-	b, err := bot.New(token,
-		&bot.Deps{
-			Logger: logger,
-		})
+	b, err := bot.New(token, logger)
 	if err != nil {
 		logger.Error("failed to initialize bot", "error", err)
 		return ExitCodeError
