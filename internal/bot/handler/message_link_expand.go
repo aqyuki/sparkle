@@ -7,13 +7,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/aqyuki/sparkle/internal/bot"
 	"github.com/aqyuki/sparkle/pkg/cache"
 	"github.com/bwmarrin/discordgo"
 	"go.uber.org/zap"
 )
-
-var _ bot.MessageCreateHandler = (*MessageLinkExpandHandler)(nil)
 
 type MessageLinkExpandHandler struct {
 	logger *zap.SugaredLogger
@@ -29,7 +26,7 @@ func NewMessageLinkExpandHandler(logger *zap.SugaredLogger, cache cache.CacheSto
 	}
 }
 
-func (h *MessageLinkExpandHandler) Handle(session *discordgo.Session, message *discordgo.MessageCreate) {
+func (h *MessageLinkExpandHandler) Expand(session *discordgo.Session, message *discordgo.MessageCreate) {
 	if message.Author.Bot {
 		h.logger.Info("skip bot message")
 		return

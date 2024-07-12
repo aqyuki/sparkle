@@ -1,57 +1,57 @@
 package bot
 
 import (
-	"github.com/bwmarrin/discordgo"
-	"github.com/samber/oops"
+	"time"
+
+	"github.com/aqyuki/sparkle/internal/bot/command"
+	"github.com/aqyuki/sparkle/internal/bot/handler"
+	"github.com/aqyuki/sparkle/internal/bot/internal/core"
+	"github.com/aqyuki/sparkle/internal/bot/router"
+	"github.com/aqyuki/sparkle/internal/information"
+	"github.com/aqyuki/sparkle/pkg/cache"
+	"go.uber.org/zap"
 )
 
+// Bot is a struct to provide bot features.
 type Bot struct {
-	session *discordgo.Session
-	remover []func()
+	core   *core.Core
+	logger *zap.SugaredLogger
+	info   *information.BotInformation
 }
 
-// NewBot creates a new Bot instance.
-// This function is used by the dependency injector to create a new Bot instance.
-func NewBot(token string) (*Bot, error) {
-	session, err := discordgo.New("Bot " + token)
+func New(token string, logger *zap.SugaredLogger) (*Bot, error) {
+	c, err := core.New(token)
 	if err != nil {
-		return nil, oops.
-			In("Bot").
-			Errorf("failed to create session: %w", err)
+		return nil, err
 	}
-	return &Bot{
-		session: session,
-		remover: make([]func(), 0),
-	}, nil
-}
 
-func (b *Bot) Start() error {
-	if err := b.session.Open(); err != nil {
-		return oops.
-			In("Bot").
-			Errorf("failed to open session: %w", err)
+	b := &Bot{
+		core:   c,
+		logger: logger,
+		info:   information.NewBotInformation(),
 	}
-	return nil
+
+	// initialize handler
+	ready := handler.NewReadyHandler(b.logger, b.info)
+	expandMessage := handler.NewMessageLinkExpandHandler(b.logger, cache.NewImMemoryCacheStore(5*time.Minute, 10*time.Minute))
+
+	// initialize router
+	commandRouter := router.NewCommandRouter("s!", b.logger)
+	commandRouter.Register("version", command.NewVersionCommand(b.logger, b.info))
+
+	// register handlers
+	b.core.AddReadyHandler(ready.HandleReady)
+	b.core.AddMessageCreateHandler(expandMessage.Expand)
+	b.core.AddMessageCreateHandler(commandRouter.Handle)
+	return b, nil
 }
 
-func (b *Bot) AddReadyHandler(handler ReadyHandler) {
-	f := b.session.AddHandler(handler.Handle)
-	b.remover = append(b.remover, f)
-}
-
-func (b *Bot) AddMessageCreateHandler(handler MessageCreateHandler) {
-	f := b.session.AddHandler(handler.Handle)
-	b.remover = append(b.remover, f)
+func (b *Bot) Run(token string) error {
+	b.logger.Infof("bot is starting...")
+	return b.core.Open(token)
 }
 
 func (b *Bot) Shutdown() error {
-	for _, f := range b.remover {
-		f()
-	}
-	if err := b.session.Close(); err != nil {
-		return oops.
-			In("Bot").
-			Errorf("failed to close session: %w", err)
-	}
-	return nil
+	b.logger.Infof("bot is shutting down...")
+	return b.core.Close()
 }
