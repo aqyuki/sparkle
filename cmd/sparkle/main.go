@@ -53,13 +53,24 @@ func run(ctx context.Context) exitCode {
 
 	// Message Command Runner
 	mentionRouter := command.NewMentionCommandRouter()
+	messageRouter := command.NewMessageRouter("s!")
 
 	// register commands
-	cmds := []command.Command{
+	mentionCommands := []command.Command{
 		command.NewVersionCommand(logger, infoProvider),
 	}
-	for _, cmd := range cmds {
+	for _, cmd := range mentionCommands {
 		if err := mentionRouter.Register(cmd); err != nil {
+			logger.Error("failed to register command", "error", err)
+			return ExitCodeError
+		}
+	}
+
+	messageCommands := []command.Command{
+		command.NewVersionCommand(logger, infoProvider),
+	}
+	for _, cmd := range messageCommands {
+		if err := messageRouter.Register(cmd); err != nil {
 			logger.Error("failed to register command", "error", err)
 			return ExitCodeError
 		}
@@ -77,6 +88,7 @@ func run(ctx context.Context) exitCode {
 	bot.AddReadyHandler(readyHandler)
 	bot.AddMessageCreateHandler(msgLinkExpandHandler)
 	bot.AddMessageCreateHandler(mentionRouter)
+	bot.AddMessageCreateHandler(messageRouter)
 
 	logger.Info("starting bot")
 	if err := bot.Start(); err != nil {
