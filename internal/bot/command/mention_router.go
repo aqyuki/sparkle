@@ -38,11 +38,11 @@ func (r *MentionCommandRouter) Handle(session *discordgo.Session, message *disco
 		if mention.ID != session.State.User.ID {
 			continue
 		}
-	}
-	for k, v := range r.commands {
-		if !strings.Contains(message.Content, k) {
-			continue
+		for k, v := range r.commands {
+			if !strings.Contains(message.Content, k) {
+				continue
+			}
+			v.Handle(session, message)
 		}
-		v.Handle(session, message)
 	}
 }
